@@ -29,20 +29,20 @@
 
   $censusData = loadCsv('http://localhost/dataAnalysis/pacensus.csv');
   $test = getPopulation($censusData);
-  // $popFormat = '';
-  // foreach ($test as $data) {
-  //   $county = $data['county'];
-  //   $county = chop($county, " , Pennsylvania") . "y";
-  //   $pop = $data['pop'];
-  //   if(empty($popFormat) == true) {
-  //     $a = '[{"county":"' . $county . '","pop":' . $pop . '}';
-  //   }
-  //   else {
-  //     $a = ',{"county":"' . $county . '","pop":' . $pop . '}';
-  //   }
-  //   $popFormat = $popFormat . $a;
-  // }
-  // $popFormat = $popFormat . ']';
+  $popFormat = '';
+  foreach ($test as $data) {
+    $county = $data['county'];
+    $county = chop($county, " , Pennsylvania") . "y";
+    $pop = $data['pop'];
+    if(empty($popFormat) == true) {
+      $a = '[{"county":"' . $county . '","pop":' . $pop . '}';
+    }
+    else {
+      $a = ',{"county":"' . $county . '","pop":' . $pop . '}';
+    }
+    $popFormat = $popFormat . $a;
+  }
+  $popFormat = $popFormat . ']';
   // var_dump($popFormat);
   // $county = [];
   $population = [];
@@ -79,11 +79,11 @@
   setcookie('population', $implodePop);
   // setcookie('county', $implodeCounty);
 
-  if(!isset($_COOKIE['population'])) {
-      echo "Populatoin not set";
-  } else {
-      echo "Value is: " . $_COOKIE['population'];
-  }
+  // if(!isset($_COOKIE['population'])) {
+  //     echo "Populatoin not set";
+  // } else {
+  //     echo "Value is: " . $_COOKIE['population'];
+  // }
   // if(!isset($_COOKIE['county'])) {
   //     echo " County not set";
   // } else {
@@ -129,11 +129,21 @@
     }
   }
   ds = ds + "]"
-  console.log(ds);
+  // console. log(ds);
   // var data = "[{'county':'Town 1','pop':10000},{'county':'Town 2','pop':12345}]";
 
   var data = ds.split(",");
+  console.log(data);
   // set the dimensions and margins of the graph
+
+  // var dataset = '{ "cities":' + data + '}';
+  // console.log(dataset);
+
+
+  data = <?php echo $popFormat; ?>;
+  console.log("bs");
+  console.log(data);
+
   var margin = {top: 10, right: 20, bottom: 30, left: 120},
       width = 2800 - margin.left - margin.right,
       height = 1000 - margin.top - margin.bottom;
