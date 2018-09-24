@@ -62,7 +62,8 @@
     // // {'county':'name','pop':population}
     // $entry = $entry . $pop . "}";
 
-    $entry = "{'" . $c . "':" . $pop . "}";
+    // $entry = "{'" . $c . "':" . $pop . "}";
+    $entry = $c . ":" . $pop;
     //
     $population[] = $entry;
 
@@ -72,7 +73,7 @@
   }
   // var_dump($population);
   // $implodeCounty = implode(", ", $county);
-  $implodePop = implode(", ", $population);
+  $implodePop = implode(",", $population);
   // var_dump($implodePop);
 
   setcookie('population', $implodePop);
@@ -116,12 +117,22 @@
   var dataset = getCookieData();
 
   var c;
+  var ds = "";
   for(c = 0; c < dataset.length; c++){
-    console.log(dataset[c]);
+    var test = dataset[c].split(":");
+    var pop = "{'county':'" + test[0] + "','pop':" + test[1] + "}";
+    if(ds  == ""){
+      ds= "[" + pop;
+    }
+    else{
+      ds = ds + "," + pop;
+    }
   }
+  ds = ds + "]"
+  console.log(ds);
+  // var data = "[{'county':'Town 1','pop':10000},{'county':'Town 2','pop':12345}]";
 
-  var data = [{"county":"Town 1","pop":10000},{"county":"Town 2","pop":12345}];
-
+  var data = ds.split(",");
   // set the dimensions and margins of the graph
   var margin = {top: 10, right: 20, bottom: 30, left: 120},
       width = 2800 - margin.left - margin.right,
