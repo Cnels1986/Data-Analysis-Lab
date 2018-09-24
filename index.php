@@ -43,52 +43,20 @@
     $popFormat = $popFormat . $a;
   }
   $popFormat = $popFormat . ']';
-  // var_dump($popFormat);
-  // $county = [];
+
   $population = [];
   foreach ($test as $data) {
     $c = $data['county'];
     $c = chop($c, " , Pennsylvania") . "y";
     $pop = $data['pop'];
 
-    // $population[] = '{"county":'.'"' . $c . '"'.',"pop":' . $pop . '}';
-
-    // {"county":
-    // $entry = "{'county':'";
-    // // {"county":'name
-    // $entry = $entry . $c;
-    // // {'county':'name','pop':
-    // $entry = $entry . "','pop':";
-    // // {'county':'name','pop':population}
-    // $entry = $entry . $pop . "}";
-
-    // $entry = "{'" . $c . "':" . $pop . "}";
     $entry = $c . ":" . $pop;
-    //
     $population[] = $entry;
-
-    // $county[] = $c;
-    // $population[] = $c;
-    // $population[] = $data['pop'];
   }
-  // var_dump($population);
-  // $implodeCounty = implode(", ", $county);
   $implodePop = implode(",", $population);
-  // var_dump($implodePop);
 
   setcookie('population', $implodePop);
-  // setcookie('county', $implodeCounty);
 
-  // if(!isset($_COOKIE['population'])) {
-  //     echo "Populatoin not set";
-  // } else {
-  //     echo "Value is: " . $_COOKIE['population'];
-  // }
-  // if(!isset($_COOKIE['county'])) {
-  //     echo " County not set";
-  // } else {
-  //     echo "Value is: " . $_COOKIE['county'];
-  // }
   unset($_COOKIE['population']);
   setcookie('population', NULL, -1, '/');
 ?>
@@ -119,17 +87,16 @@
   var dataset = getCookieData();
 
   var c;
-  var classes = [];
+  var ds = [];
   for(c = 0; c < dataset.length; c++) {
     var test = dataset[c].split(":");
     var county = test[0];
+    county = county.replace(" County", "");
     var population = test[1];
     var thingy = {id: county, value: population};
-    classes.push(thingy);
+    ds.push(thingy);
   }
-  console. log(classes);
-  // data = ds;
-  // var data = "[{'county':'Town 1','pop':10000,'pop2': 11000},{'county':'Town 2','pop':12345, 'pop2': }]";
+  console. log(ds);
 
   var svg = d3.select("svg"),
     width = +svg.attr("width"),
@@ -143,7 +110,7 @@
   .size([width, height])
   .padding(1.5);
 
-  var root = d3.hierarchy({children: classes})
+  var root = d3.hierarchy({children: ds})
   .sum(function(d) { return d.value; })
   .each(function(d) {
     if (id = d.data.id) {
