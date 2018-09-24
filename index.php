@@ -43,52 +43,20 @@
     $popFormat = $popFormat . $a;
   }
   $popFormat = $popFormat . ']';
-  // var_dump($popFormat);
-  // $county = [];
+
   $population = [];
   foreach ($test as $data) {
     $c = $data['county'];
     $c = chop($c, " , Pennsylvania") . "y";
     $pop = $data['pop'];
 
-    // $population[] = '{"county":'.'"' . $c . '"'.',"pop":' . $pop . '}';
-
-    // {"county":
-    // $entry = "{'county':'";
-    // // {"county":'name
-    // $entry = $entry . $c;
-    // // {'county':'name','pop':
-    // $entry = $entry . "','pop':";
-    // // {'county':'name','pop':population}
-    // $entry = $entry . $pop . "}";
-
-    // $entry = "{'" . $c . "':" . $pop . "}";
     $entry = $c . ":" . $pop;
-    //
     $population[] = $entry;
-
-    // $county[] = $c;
-    // $population[] = $c;
-    // $population[] = $data['pop'];
   }
-  // var_dump($population);
-  // $implodeCounty = implode(", ", $county);
   $implodePop = implode(",", $population);
-  // var_dump($implodePop);
 
   setcookie('population', $implodePop);
-  // setcookie('county', $implodeCounty);
 
-  // if(!isset($_COOKIE['population'])) {
-  //     echo "Populatoin not set";
-  // } else {
-  //     echo "Value is: " . $_COOKIE['population'];
-  // }
-  // if(!isset($_COOKIE['county'])) {
-  //     echo " County not set";
-  // } else {
-  //     echo "Value is: " . $_COOKIE['county'];
-  // }
   unset($_COOKIE['population']);
   setcookie('population', NULL, -1, '/');
 ?>
@@ -103,6 +71,8 @@
 
 <html>
 <body>
+  <h1>Pennsylvania County Population</h1>
+  <svg width="1920" height="1920" font-family="sans-serif" font-size="10" text-anchor="middle"></svg>
   <script src="//d3js.org/d3.v4.min.js"></script>
   <script>
 
@@ -117,85 +87,67 @@
   var dataset = getCookieData();
 
   var c;
-  var ds = "";
-  for(c = 0; c < dataset.length; c++){
+  var ds = [];
+  for(c = 0; c < dataset.length; c++) {
     var test = dataset[c].split(":");
-    var pop = "{'county':'" + test[0] + "','pop':" + test[1] + "}";
-    if(ds  == ""){
-      ds= "[" + pop;
-    }
-    else{
-      ds = ds + "," + pop;
-    }
+    var county = test[0];
+    county = county.replace(" County", "");
+    var population = test[1];
+    var thingy = {id: county, value: population};
+    ds.push(thingy);
   }
-  ds = ds + "]"
-  // console. log(ds);
-  // var data = "[{'county':'Town 1','pop':10000},{'county':'Town 2','pop':12345}]";
+  console. log(ds);
 
-  var data = ds.split(",");
-  console.log(data);
-  // set the dimensions and margins of the graph
+  var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height");
 
-  // var dataset = '{ "cities":' + data + '}';
-  // console.log(dataset);
+  var format = d3.format(",d");
 
+  var color = d3.scaleOrdinal(d3.schemeCategory20c);
 
-  data = <?php echo $popFormat; ?>;
-  console.log("bs");
-  console.log(data);
+  var pack = d3.pack()
+  .size([width, height])
+  .padding(1.5);
 
-  var margin = {top: 10, right: 20, bottom: 30, left: 120},
-      width = 2800 - margin.left - margin.right,
-      height = 1000 - margin.top - margin.bottom;
+  var root = d3.hierarchy({children: ds})
+  .sum(function(d) { return d.value; })
+  .each(function(d) {
+    if (id = d.data.id) {
+      var id, i = id.lastIndexOf(".");
+      d.id = id;
+      d.package = id.slice(0, i);
+      d.class = id.slice(i + 1);
+    }
+  });
 
-  // set the ranges
-  var y = d3.scaleBand()
-            .range([height, 0])
-            .padding(0.1);
+  var node = svg.selectAll(".node")
+  .data(pack(root).leaves())
+  .enter().append("g")
+  .attr("class", "node")
+  .attr("transform", function(d) { return "translate(" + d.x + "," + d.y + ")"; });
 
-  var x = d3.scaleLinear()
-            .range([0, width]);
+  node.append("circle")
+  .attr("id", function(d) { return d.id; })
+  .attr("r", function(d) { return d.r; })
+  .style("fill", function(d) { return color(d.package); });
 
-  // append the svg object to the body of the page
-  // append a 'group' element to 'svg'
-  // moves the 'group' element to the top left margin
-  var svg = d3.select("body").append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
-    .append("g")
-      .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+  node.append("clipPath")
+  .attr("id", function(d) { return "clip-" + d.id; })
+  .append("use")
+  .attr("xlink:href", function(d) { return "#" + d.id; });
 
-    // format the data
-    data.forEach(function(d) {
-      d.pop = +d.pop;
-    });
+  node.append("text")
+  .attr("clip-path", function(d) { return "url(#clip-" + d.id + ")"; })
+  .selectAll("tspan")
+  .data(function(d) { return d.class.split(/(?=[A-Z][^A-Z])/g); })
+  .enter().append("tspan")
+  .attr("x", 0)
+  .attr("y", function(d, i, nodes) { return 13 + (i - nodes.length / 2 - 0.5) * 10; })
+  .text(function(d) { return d; });
 
-    // Scale the range of the data in the domains
-    x.domain([0, d3.max(data, function(d){ return d.pop; })])
-    y.domain(data.map(function(d) { return d.county; }));
-    //y.domain([0, d3.max(data, function(d) { return d.sales; })]);
-
-    // append the rectangles for the bar chart
-    svg.selectAll(".bar")
-        .data(data)
-      .enter().append("rect")
-        .attr("class", "bar")
-        //.attr("x", function(d) { return x(d.sales); })
-        .attr("width", function(d) {return x(d.pop); } )
-        .attr("y", function(d) { return y(d.county); })
-        .attr("height", y.bandwidth());
-
-    // add the x Axis
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x));
-
-    // add the y Axis
-    svg.append("g")
-        .call(d3.axisLeft(y));
-
-
+  node.append("title")
+  .text(function(d) { return d.id + "\n" + format(d.value); });
   </script>
 </body>
 </html>
