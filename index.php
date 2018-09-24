@@ -117,32 +117,39 @@
   var dataset = getCookieData();
 
   var c;
-  var ds = "";
+  var ds = [];
   for(c = 0; c < dataset.length; c++){
     var test = dataset[c].split(":");
-    var pop = "{'county':'" + test[0] + "','pop':" + test[1] + "}";
-    if(ds  == ""){
-      ds= "[" + pop;
-    }
-    else{
-      ds = ds + "," + pop;
-    }
+    var county = test[0];
+    var population = test[1];
+    // var pop = "{'county':'" + test[0] + "','pop':" + test[1] + "}";
+    // if(ds  == ""){
+    //   ds= "[" + pop;
+    // }
+    // else{
+    //   ds = ds + "," + pop;
+    // }
+    // console.log(county);
+    // console.log(population);
+    var thingy = {county: county, pop: population};
+    ds.push(thingy);
+    // console.log(thingy);
   }
-  ds = ds + "]"
-  // console. log(ds);
+  // ds = ds + "]"
+  console. log(ds);
+  data = ds;
   // var data = "[{'county':'Town 1','pop':10000},{'county':'Town 2','pop':12345}]";
 
-  var data = ds.split(",");
-  console.log(data);
+  // var data = ds.split(",");
+  // console.log(data);
   // set the dimensions and margins of the graph
 
   // var dataset = '{ "cities":' + data + '}';
   // console.log(dataset);
 
 
-  data = <?php echo $popFormat; ?>;
-  console.log("bs");
-  console.log(data);
+  // data = <?php echo $popFormat; ?>;
+  // console.log(data);
 
   var margin = {top: 10, right: 20, bottom: 30, left: 120},
       width = 2800 - margin.left - margin.right,
