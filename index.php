@@ -2,6 +2,7 @@
 
 <?php
 
+  // function loads the csv file
   function loadCsv($path) {
       $csvFile = file($path);
       $csv = array_map('str_getcsv', $csvFile);
@@ -17,6 +18,7 @@
     $population = [];
     $a = 0;
     forEach ($data as $dataPoint) {
+      // Selects from the 2 columns I want the data from, county name and the newest population totals
       $name = $dataPoint['GEO.display-label'];
       $pop= intval($dataPoint['est72017sex0_age999']);
       $population[$a] = [
@@ -24,26 +26,14 @@
         'pop' => $pop];
       $a++;
     }
+    // Returns an array of the data
     return $population;
   }
 
   $censusData = loadCsv('http://localhost/dataAnalysis/pacensus.csv');
   $test = getPopulation($censusData);
-  $popFormat = '';
-  foreach ($test as $data) {
-    $county = $data['county'];
-    $county = chop($county, " , Pennsylvania") . "y";
-    $pop = $data['pop'];
-    if(empty($popFormat) == true) {
-      $a = '[{"county":"' . $county . '","pop":' . $pop . '}';
-    }
-    else {
-      $a = ',{"county":"' . $county . '","pop":' . $pop . '}';
-    }
-    $popFormat = $popFormat . $a;
-  }
-  $popFormat = $popFormat . ']';
 
+  // constructs an array and formats the data needed to be sent through the cookie
   $population = [];
   foreach ($test as $data) {
     $c = $data['county'];
@@ -54,14 +44,11 @@
     $population[] = $entry;
   }
   $implodePop = implode(",", $population);
-
   setcookie('population', $implodePop);
 
   unset($_COOKIE['population']);
   setcookie('population', NULL, -1, '/');
 ?>
-
-
 
 <!DOCTYPE html>
   <meta charset="utf-8">
@@ -76,6 +63,7 @@
   <script src="//d3js.org/d3.v4.min.js"></script>
   <script>
 
+  // gets the data sent from the php cookie
   var getCookieData = () => {
     var cookieValue = document.cookie.replace(/(?:(?:^|.*;\s*)population\s*\=\s*([^;]*).*$)|^.*$/, "$1");
     var decodedCookie = decodeURIComponent(cookieValue);
@@ -88,6 +76,7 @@
 
   var c;
   var ds = [];
+  // loop formats the data from the cookie so it can be used to create the bubble chart
   for(c = 0; c < dataset.length; c++) {
     var test = dataset[c].split(":");
     var county = test[0];
@@ -98,6 +87,8 @@
   }
   console. log(ds);
 
+
+  // code to create the actual bubble chart and populate it with the php cookie data that's been formatted correctly
   var svg = d3.select("svg"),
     width = +svg.attr("width"),
     height = +svg.attr("height");
