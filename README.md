@@ -1,4 +1,4 @@
-Data Analysis Lab:
+## Data Analysis Lab:
 
   Discover/Requirements:
   For this lab I am going to create a visualization of the popular of the different counties in PA, using the CSV file from the census website.
